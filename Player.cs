@@ -71,11 +71,13 @@ namespace GhostGame
             };
             controller.actions[PlayerAction.Left].action = () =>
             {
-                 velocity.X -= IsBall ? 0.5f : 2;
+                 if(immunity == 0)
+                    velocity.X -= IsBall ? 0.5f : 2;
             };
             controller.actions[PlayerAction.Right].action = () =>
             {
-                velocity.X += IsBall ? 0.5f : 2;
+                if(immunity == 0)
+                    velocity.X += IsBall ? 0.5f : 2;
             };
             Game1.instance.player = this;
             base.Add();
@@ -177,14 +179,7 @@ namespace GhostGame
             {
                 immunity--;
                 invincible = true;
-                if(!onGround)
-                {
-                    controller.focused = false;
-                }
-                else
-                {
-                    controller.focused = true;
-                }
+                
             }
             else
             {
@@ -258,12 +253,10 @@ namespace GhostGame
             if (onGround)
             {
                 EndRoll();
-            }                 
-            
-            if(controller.focused || onGround)
-            {
+            }                
+            if(immunity == 0)    
                 velocity.X *= IsBall ? 0.9f : 0.7f;
-            }
+
             if (jumpVelocity.Y >= 0) velocity.Y += 0.3f;
             else jumpVelocity.Y += 0.3f;
             velocity += jumpVelocity;
