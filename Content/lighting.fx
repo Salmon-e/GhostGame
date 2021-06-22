@@ -69,25 +69,25 @@ float4 PixelShaderFunction(float2 TexCoord : TEXCOORD0) : COLOR0
         float dist = distance(l.xy, pixelPos);        
         int stepCount = 0;     
         float startedInBlock = pixelSolidity;
+        if (pixelSolidity == 0) {
+            [unroll(10)] while (travelDistance < dist && intersected == 0 && dist < l.z && stepCount < 10 && outLight != 0)
+            {
+                float solid = solidity(position - float2(tileSize / 2, tileSize / 2));
+                intersected = solid;
 
-        [unroll(10)] while (travelDistance < dist && intersected == 0 && dist < l.z && stepCount < 10 && outLight != 0)
-        {                     
-            float solid = solidity(position - float2(tileSize / 2, tileSize / 2));          
-            startedInBlock *= solid;                       
-            intersected = solid * (1- startedInBlock);
-            
-            float targetX = round(position.x / tileSize, dir.x) * tileSize;
-            float targetY = round(position.y / tileSize, dir.y) * tileSize;
+                float targetX = round(position.x / tileSize, dir.x) * tileSize;
+                float targetY = round(position.y / tileSize, dir.y) * tileSize;
 
-            float2 xStep = dir * (targetX - position.x) / dir.x;
-            float2 yStep = dir * (targetY - position.y) / dir.y;
-       
-            float2 step = ((length(yStep) > length(xStep)) ? xStep : yStep) *1.1;
-            
-            position += step;
-            travelDistance += length(step);            
-            stepCount++;            
-        }        
+                float2 xStep = dir * (targetX - position.x) / dir.x;
+                float2 yStep = dir * (targetY - position.y) / dir.y;
+
+                float2 step = ((length(yStep) > length(xStep)) ? xStep : yStep) * 1.1;
+
+                position += step;
+                travelDistance += length(step);
+                stepCount++;
+            }
+        }
         outLight += light * clamp(1 - dist / l.z, 0, 1) * (1 - intersected);
     }    
     return color * outLight;
